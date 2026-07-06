@@ -30,13 +30,13 @@ That's it. Every call to the webhook appends one new row — nothing ever overwr
    ```
    Replace with a long random string (e.g. run `openssl rand -hex 24`, or just mash 40+ random characters). Keep it — the front end needs the same value.
    The AI model is set on the next line (`claude-sonnet-4.6`) — change it there if you ever want a different TokenMix model.
-5. **Create the TokenMix credential** (once):
-   - n8n → Credentials → Add credential → **Header Auth**
-   - Name it `TokenMix Header Auth`
-   - **Name field:** `Authorization`
-   - **Value field:** `Bearer tm-xxxxxxxx` (your TokenMix API key, with the word `Bearer` and a space in front)
-   - Save.
-6. **Attach credentials to the 4 HTTP nodes:** open each of `Call TokenMix P1`…`P4`, and in *Credential for Header Auth* select `TokenMix Header Auth`.
+5. **TokenMix credential** — the 4 `Call TokenMix` nodes are native **OpenAI** nodes (TokenMix is OpenAI-compatible). If you already have a TokenMix credential of type *OpenAI* on this instance, skip to step 6. Otherwise create it once:
+   - n8n → Credentials → Add credential → **OpenAI**
+   - Name it `TokenMix`
+   - **API Key:** your TokenMix key (`tm-…`)
+   - **Base URL:** `https://api.tokenmix.ai/v1`
+   - Save. (A red "could not connect" warning on save is usually just the credential test hitting an OpenAI-only endpoint — if the model call works in step C, ignore it.)
+6. **Attach the credential to the 4 OpenAI nodes:** open each of `Call TokenMix P1`…`P4` and select the TokenMix credential. The *Model* field is set by expression (`{{ $json.ai_model }}`, fed from the Validate Request config) — don't replace it with a dropdown pick.
 7. **Attach your Google credential to the 7 Sheets nodes:** open each of `Log P1`…`P4` and `Read Log P2`…`P4`, select your existing Google Sheets credential.
 8. **Save** the workflow, then toggle it **Active** (top-right).
 

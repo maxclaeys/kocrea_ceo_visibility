@@ -133,37 +133,40 @@
         -240
       ],
       "parameters": {
-        "jsCode": "const req = $json;\nconst attempt = 1;\nconst inp = req.inputs || {};\nconst S = function (v) { return typeof v === 'string' ? v : JSON.stringify(v, null, 2); };\n\nconst prompt = \"ROLE\\nYou are a visibility diagnostics analyst for \\\"The CEO Visibility Reset.\\\"\\nYou assess solo founders (\\\"Chief Everything Officers\\\") across 5 fixed\\ndimensions to reveal where their visibility breaks down operationally.\\n\\nCONTEXT\\nThe guest has answered host questions across 5 dimensions: Visibility\\nPriority, Communication Habits, Target Clarity, Revenue Connection,\\nAuthority Signals. Answers are conversational and may be incomplete,\\nvague, or contradictory — this is expected and part of the diagnosis.\\nReference calibration (real CEO answers, for tone/pattern matching):\\n\\\"I don't have time for marketing\\\" / \\\"I post when I have time\\\" /\\n\\\"Referrals and word of mouth bring most of my business\\\" / \\\"If I take\\na day off, my business will stop immediately\\\" / \\\"I don't know what I\\ndo better than my competitors\\\"\\n\\nCOMMAND\\n1. Score each of the 5 dimensions as LOW / MEDIUM / HIGH maturity,\\nbased on how close the guest is to having a deliberate, repeatable\\nvisibility practice (not how busy or successful they are).\\n2. For each dimension, extract ONE sentence stating the core issue —\\nno advice, no solutions, diagnosis only.\\n3. Write ONE synthesis sentence connecting the lowest-scoring dimension\\nto the guest's daily operational reality (why visibility falls behind\\nspecifically, not generically).\\nDo not suggest fixes. Do not soften the diagnosis. Do not exceed one\\nsentence per dimension.\\n\\nFORMAT\\nReturn ONLY valid JSON, no markdown, no preamble:\\n{\\n\\\"dimensions\\\": [\\n{ \\\"name\\\": \\\"Visibility priority\\\", \\\"maturity\\\": \\\"LOW|MEDIUM|HIGH\\\", \\\"issue\\\": \\\"...\\\" },\\n{ \\\"name\\\": \\\"Communication habits\\\", \\\"maturity\\\": \\\"LOW|MEDIUM|HIGH\\\", \\\"issue\\\": \\\"...\\\" },\\n{ \\\"name\\\": \\\"Target clarity\\\", \\\"maturity\\\": \\\"LOW|MEDIUM|HIGH\\\", \\\"issue\\\": \\\"...\\\" },\\n{ \\\"name\\\": \\\"Revenue connection\\\", \\\"maturity\\\": \\\"LOW|MEDIUM|HIGH\\\", \\\"issue\\\": \\\"...\\\" },\\n{ \\\"name\\\": \\\"Authority signals\\\", \\\"maturity\\\": \\\"LOW|MEDIUM|HIGH\\\", \\\"issue\\\": \\\"...\\\" }\\n],\\n\\\"diagnosis\\\": \\\"...\\\"\\n}\" + \"\\n\\n\" + ('GUEST ANSWERS:' + String.fromCharCode(10)\n  + 'Visibility Priority: ' + S(inp.visibility_priority || '(no answer)') + String.fromCharCode(10) + String.fromCharCode(10)\n  + 'Communication Habits: ' + S(inp.communication_habits || '(no answer)') + String.fromCharCode(10) + String.fromCharCode(10)\n  + 'Target Clarity: ' + S(inp.target_clarity || '(no answer)') + String.fromCharCode(10) + String.fromCharCode(10)\n  + 'Revenue Connection: ' + S(inp.revenue_connection || '(no answer)') + String.fromCharCode(10) + String.fromCharCode(10)\n  + 'Authority Signals: ' + S(inp.authority_signals || '(no answer)'));\n\nconst ai_body = {\n  model: req.ai_model,\n  max_tokens: 2048,\n  temperature: 0.4,\n  messages: [{ role: 'user', content: prompt }]\n};\n\nreturn { json: Object.assign({}, req, { attempt_number: attempt, ai_body: ai_body }) };",
+        "jsCode": "const req = $json;\nconst attempt = 1;\nconst inp = req.inputs || {};\nconst S = function (v) { return typeof v === 'string' ? v : JSON.stringify(v, null, 2); };\n\nconst prompt_text = \"ROLE\\nYou are a visibility diagnostics analyst for \\\"The CEO Visibility Reset.\\\"\\nYou assess solo founders (\\\"Chief Everything Officers\\\") across 5 fixed\\ndimensions to reveal where their visibility breaks down operationally.\\n\\nCONTEXT\\nThe guest has answered host questions across 5 dimensions: Visibility\\nPriority, Communication Habits, Target Clarity, Revenue Connection,\\nAuthority Signals. Answers are conversational and may be incomplete,\\nvague, or contradictory — this is expected and part of the diagnosis.\\nReference calibration (real CEO answers, for tone/pattern matching):\\n\\\"I don't have time for marketing\\\" / \\\"I post when I have time\\\" /\\n\\\"Referrals and word of mouth bring most of my business\\\" / \\\"If I take\\na day off, my business will stop immediately\\\" / \\\"I don't know what I\\ndo better than my competitors\\\"\\n\\nCOMMAND\\n1. Score each of the 5 dimensions as LOW / MEDIUM / HIGH maturity,\\nbased on how close the guest is to having a deliberate, repeatable\\nvisibility practice (not how busy or successful they are).\\n2. For each dimension, extract ONE sentence stating the core issue —\\nno advice, no solutions, diagnosis only.\\n3. Write ONE synthesis sentence connecting the lowest-scoring dimension\\nto the guest's daily operational reality (why visibility falls behind\\nspecifically, not generically).\\nDo not suggest fixes. Do not soften the diagnosis. Do not exceed one\\nsentence per dimension.\\n\\nFORMAT\\nReturn ONLY valid JSON, no markdown, no preamble:\\n{\\n\\\"dimensions\\\": [\\n{ \\\"name\\\": \\\"Visibility priority\\\", \\\"maturity\\\": \\\"LOW|MEDIUM|HIGH\\\", \\\"issue\\\": \\\"...\\\" },\\n{ \\\"name\\\": \\\"Communication habits\\\", \\\"maturity\\\": \\\"LOW|MEDIUM|HIGH\\\", \\\"issue\\\": \\\"...\\\" },\\n{ \\\"name\\\": \\\"Target clarity\\\", \\\"maturity\\\": \\\"LOW|MEDIUM|HIGH\\\", \\\"issue\\\": \\\"...\\\" },\\n{ \\\"name\\\": \\\"Revenue connection\\\", \\\"maturity\\\": \\\"LOW|MEDIUM|HIGH\\\", \\\"issue\\\": \\\"...\\\" },\\n{ \\\"name\\\": \\\"Authority signals\\\", \\\"maturity\\\": \\\"LOW|MEDIUM|HIGH\\\", \\\"issue\\\": \\\"...\\\" }\\n],\\n\\\"diagnosis\\\": \\\"...\\\"\\n}\" + \"\\n\\n\" + ('GUEST ANSWERS:' + String.fromCharCode(10)\n  + 'Visibility Priority: ' + S(inp.visibility_priority || '(no answer)') + String.fromCharCode(10) + String.fromCharCode(10)\n  + 'Communication Habits: ' + S(inp.communication_habits || '(no answer)') + String.fromCharCode(10) + String.fromCharCode(10)\n  + 'Target Clarity: ' + S(inp.target_clarity || '(no answer)') + String.fromCharCode(10) + String.fromCharCode(10)\n  + 'Revenue Connection: ' + S(inp.revenue_connection || '(no answer)') + String.fromCharCode(10) + String.fromCharCode(10)\n  + 'Authority Signals: ' + S(inp.authority_signals || '(no answer)'));\n\nreturn { json: Object.assign({}, req, { attempt_number: attempt, prompt_text: prompt_text }) };",
         "mode": "runOnceForEachItem"
       }
     },
     {
       "id": "kcv-node-08",
       "name": "Call TokenMix P1",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
       "position": [
         -100,
         -240
       ],
       "onError": "continueRegularOutput",
       "parameters": {
-        "method": "POST",
-        "url": "https://api.tokenmix.ai/v1/chat/completions",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.ai_body) }}",
-        "options": {
-          "timeout": 90000,
-          "response": {
-            "response": {
-              "responseFormat": "text",
-              "outputPropertyName": "ai_raw",
-              "neverError": true
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.ai_model }}"
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "={{ $json.prompt_text }}"
             }
-          }
+          ]
+        },
+        "simplify": false,
+        "options": {
+          "maxTokens": 2048,
+          "temperature": 0.4
         }
       }
     },
@@ -177,7 +180,7 @@
         -240
       ],
       "parameters": {
-        "jsCode": "const src = $('Build Prompt P1').first().json;\nconst raw = $json.ai_raw;\n\nlet output = null;\nlet aiError = false;\n\ntry {\n  if (!raw) { throw new Error('empty response'); }\n  const envelope = JSON.parse(raw);\n  let text = envelope.choices && envelope.choices[0] && envelope.choices[0].message\n    ? envelope.choices[0].message.content\n    : null;\n  if (!text) {\n    throw new Error(envelope.error && envelope.error.message ? envelope.error.message : 'no content in response');\n  }\n  text = String(text).trim();\n  if (text.indexOf('```') === 0) {\n    text = text.replace(/^```[a-zA-Z]*\\s*/, '').replace(/```\\s*$/, '').trim();\n  }\n  output = JSON.parse(text);\n} catch (e) {\n  aiError = true;\n}\n\nconst message = 'Diagnosis incomplete, please retry';\nconst envelopeOut = aiError\n  ? { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: true, message: message }\n  : { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: false, output: output };\n\nreturn { json: {\n  session_id: src.session_id,\n  guest_name: src.guest_name,\n  phase: src.phase,\n  attempt_number: src.attempt_number,\n  input_json: JSON.stringify(src.inputs || {}),\n  output_json: JSON.stringify(aiError ? { error: true, message: message } : output),\n  timestamp: new Date().toISOString(),\n  envelope: envelopeOut\n} };",
+        "jsCode": "const src = $('Build Prompt P1').first().json;\nconst j = $input.item.json || {};\n\nlet output = null;\nlet aiError = false;\n\ntry {\n  // The OpenAI node output shape depends on the \"Simplify Output\" toggle —\n  // handle raw, simplified, and content-block variants.\n  let text = null;\n  if (j.choices && j.choices[0] && j.choices[0].message) {\n    text = j.choices[0].message.content;           // raw API response\n  } else if (j.message && j.message.content != null) {\n    text = j.message.content;                      // simplified output\n  } else if (typeof j.content === 'string') {\n    text = j.content;\n  } else if (typeof j.text === 'string') {\n    text = j.text;\n  } else if (typeof j.output === 'string') {\n    text = j.output;\n  }\n  if (Array.isArray(text)) {\n    text = text.map(function (b) { return (b && (b.text || b.content)) || ''; }).join('');\n  }\n  if (!text) {\n    throw new Error(j.error && j.error.message ? j.error.message : 'no content in response');\n  }\n  text = String(text).trim();\n  if (text.indexOf('```') === 0) {\n    text = text.replace(/^```[a-zA-Z]*\\s*/, '').replace(/```\\s*$/, '').trim();\n  }\n  output = JSON.parse(text);\n} catch (e) {\n  aiError = true;\n}\n\nconst message = 'Diagnosis incomplete, please retry';\nconst envelopeOut = aiError\n  ? { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: true, message: message }\n  : { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: false, output: output };\n\nreturn { json: {\n  session_id: src.session_id,\n  guest_name: src.guest_name,\n  phase: src.phase,\n  attempt_number: src.attempt_number,\n  input_json: JSON.stringify(src.inputs || {}),\n  output_json: JSON.stringify(aiError ? { error: true, message: message } : output),\n  timestamp: new Date().toISOString(),\n  envelope: envelopeOut\n} };",
         "mode": "runOnceForEachItem"
       }
     },
@@ -359,36 +362,39 @@
         80
       ],
       "parameters": {
-        "jsCode": "const req = $('Validate Request').first().json;\nconst rows = $input.all().map(function (i) { return i.json; }).filter(function (r) { return r && r.session_id; });\nconst attempt = rows.filter(function (r) {\n  return String(r.session_id) === String(req.session_id) && Number(r.phase) === 2;\n}).length + 1;\nconst inp = req.inputs || {};\nconst S = function (v) { return typeof v === 'string' ? v : JSON.stringify(v, null, 2); };\n\nconst prompt = \"ROLE\\nYou are a positioning strategist. You convert a founder's operational\\nself-perception into a single, sharp executive-level statement of the\\ngap between how they're perceived and who they want to become.\\n\\nCONTEXT\\nInput is the Phase 1 diagnosis plus two guest statements: what they're\\ncurrently known for, and what they want to be known for.\\nReference pattern (do not copy content, only structure):\\nInput: \\\"Carbon audits and compliance reports\\\" -> \\\"Strategic sustainability\\ntransformation advisor\\\"\\nOutput: \\\"You are positioned as a technician, while your ambition is to\\noperate as a board-level transformation advisor.\\\"\\n\\nCOMMAND\\n1. Name the current perceived role in 2-4 words (concrete, not flattering).\\n2. Name the desired role in 2-4 words (concrete, not aspirational fluff).\\n3. Label the gap type in 2-4 words (e.g. \\\"tactical vs strategic authority\\\").\\n4. Write ONE positioning gap statement using the exact pattern:\\n\\\"You are positioned as [X], while your ambition is to operate as [Y].\\\"\\nThe statement must be quotable on screen — short, sharp, no qualifiers.\\n\\nFORMAT\\nReturn ONLY valid JSON, no markdown, no preamble:\\n{\\n\\\"current_role\\\": \\\"...\\\",\\n\\\"desired_role\\\": \\\"...\\\",\\n\\\"gap_label\\\": \\\"...\\\",\\n\\\"gap_statement\\\": \\\"...\\\"\\n}\" + \"\\n\\n\" + ('PHASE 1 DIAGNOSIS:' + String.fromCharCode(10) + S(inp.phase1_output || '(missing)') + String.fromCharCode(10) + String.fromCharCode(10)\n  + 'CURRENT / DESIRED:' + String.fromCharCode(10) + S(inp.current_known_for || '(missing)') + ' / ' + S(inp.wants_to_be_known_for || '(missing)'));\n\nconst ai_body = {\n  model: req.ai_model,\n  max_tokens: 2048,\n  temperature: 0.4,\n  messages: [{ role: 'user', content: prompt }]\n};\n\nreturn [{ json: Object.assign({}, req, { attempt_number: attempt, ai_body: ai_body }) }];"
+        "jsCode": "const req = $('Validate Request').first().json;\nconst rows = $input.all().map(function (i) { return i.json; }).filter(function (r) { return r && r.session_id; });\nconst attempt = rows.filter(function (r) {\n  return String(r.session_id) === String(req.session_id) && Number(r.phase) === 2;\n}).length + 1;\nconst inp = req.inputs || {};\nconst S = function (v) { return typeof v === 'string' ? v : JSON.stringify(v, null, 2); };\n\nconst prompt_text = \"ROLE\\nYou are a positioning strategist. You convert a founder's operational\\nself-perception into a single, sharp executive-level statement of the\\ngap between how they're perceived and who they want to become.\\n\\nCONTEXT\\nInput is the Phase 1 diagnosis plus two guest statements: what they're\\ncurrently known for, and what they want to be known for.\\nReference pattern (do not copy content, only structure):\\nInput: \\\"Carbon audits and compliance reports\\\" -> \\\"Strategic sustainability\\ntransformation advisor\\\"\\nOutput: \\\"You are positioned as a technician, while your ambition is to\\noperate as a board-level transformation advisor.\\\"\\n\\nCOMMAND\\n1. Name the current perceived role in 2-4 words (concrete, not flattering).\\n2. Name the desired role in 2-4 words (concrete, not aspirational fluff).\\n3. Label the gap type in 2-4 words (e.g. \\\"tactical vs strategic authority\\\").\\n4. Write ONE positioning gap statement using the exact pattern:\\n\\\"You are positioned as [X], while your ambition is to operate as [Y].\\\"\\nThe statement must be quotable on screen — short, sharp, no qualifiers.\\n\\nFORMAT\\nReturn ONLY valid JSON, no markdown, no preamble:\\n{\\n\\\"current_role\\\": \\\"...\\\",\\n\\\"desired_role\\\": \\\"...\\\",\\n\\\"gap_label\\\": \\\"...\\\",\\n\\\"gap_statement\\\": \\\"...\\\"\\n}\" + \"\\n\\n\" + ('PHASE 1 DIAGNOSIS:' + String.fromCharCode(10) + S(inp.phase1_output || '(missing)') + String.fromCharCode(10) + String.fromCharCode(10)\n  + 'CURRENT / DESIRED:' + String.fromCharCode(10) + S(inp.current_known_for || '(missing)') + ' / ' + S(inp.wants_to_be_known_for || '(missing)'));\n\nreturn [{ json: Object.assign({}, req, { attempt_number: attempt, prompt_text: prompt_text }) }];"
       }
     },
     {
       "id": "kcv-node-14",
       "name": "Call TokenMix P2",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
       "position": [
         -100,
         80
       ],
       "onError": "continueRegularOutput",
       "parameters": {
-        "method": "POST",
-        "url": "https://api.tokenmix.ai/v1/chat/completions",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.ai_body) }}",
-        "options": {
-          "timeout": 90000,
-          "response": {
-            "response": {
-              "responseFormat": "text",
-              "outputPropertyName": "ai_raw",
-              "neverError": true
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.ai_model }}"
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "={{ $json.prompt_text }}"
             }
-          }
+          ]
+        },
+        "simplify": false,
+        "options": {
+          "maxTokens": 2048,
+          "temperature": 0.4
         }
       }
     },
@@ -402,7 +408,7 @@
         80
       ],
       "parameters": {
-        "jsCode": "const src = $('Build Prompt P2').first().json;\nconst raw = $json.ai_raw;\n\nlet output = null;\nlet aiError = false;\n\ntry {\n  if (!raw) { throw new Error('empty response'); }\n  const envelope = JSON.parse(raw);\n  let text = envelope.choices && envelope.choices[0] && envelope.choices[0].message\n    ? envelope.choices[0].message.content\n    : null;\n  if (!text) {\n    throw new Error(envelope.error && envelope.error.message ? envelope.error.message : 'no content in response');\n  }\n  text = String(text).trim();\n  if (text.indexOf('```') === 0) {\n    text = text.replace(/^```[a-zA-Z]*\\s*/, '').replace(/```\\s*$/, '').trim();\n  }\n  output = JSON.parse(text);\n} catch (e) {\n  aiError = true;\n}\n\nconst message = 'Diagnosis incomplete, please retry';\nconst envelopeOut = aiError\n  ? { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: true, message: message }\n  : { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: false, output: output };\n\nreturn { json: {\n  session_id: src.session_id,\n  guest_name: src.guest_name,\n  phase: src.phase,\n  attempt_number: src.attempt_number,\n  input_json: JSON.stringify(src.inputs || {}),\n  output_json: JSON.stringify(aiError ? { error: true, message: message } : output),\n  timestamp: new Date().toISOString(),\n  envelope: envelopeOut\n} };",
+        "jsCode": "const src = $('Build Prompt P2').first().json;\nconst j = $input.item.json || {};\n\nlet output = null;\nlet aiError = false;\n\ntry {\n  // The OpenAI node output shape depends on the \"Simplify Output\" toggle —\n  // handle raw, simplified, and content-block variants.\n  let text = null;\n  if (j.choices && j.choices[0] && j.choices[0].message) {\n    text = j.choices[0].message.content;           // raw API response\n  } else if (j.message && j.message.content != null) {\n    text = j.message.content;                      // simplified output\n  } else if (typeof j.content === 'string') {\n    text = j.content;\n  } else if (typeof j.text === 'string') {\n    text = j.text;\n  } else if (typeof j.output === 'string') {\n    text = j.output;\n  }\n  if (Array.isArray(text)) {\n    text = text.map(function (b) { return (b && (b.text || b.content)) || ''; }).join('');\n  }\n  if (!text) {\n    throw new Error(j.error && j.error.message ? j.error.message : 'no content in response');\n  }\n  text = String(text).trim();\n  if (text.indexOf('```') === 0) {\n    text = text.replace(/^```[a-zA-Z]*\\s*/, '').replace(/```\\s*$/, '').trim();\n  }\n  output = JSON.parse(text);\n} catch (e) {\n  aiError = true;\n}\n\nconst message = 'Diagnosis incomplete, please retry';\nconst envelopeOut = aiError\n  ? { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: true, message: message }\n  : { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: false, output: output };\n\nreturn { json: {\n  session_id: src.session_id,\n  guest_name: src.guest_name,\n  phase: src.phase,\n  attempt_number: src.attempt_number,\n  input_json: JSON.stringify(src.inputs || {}),\n  output_json: JSON.stringify(aiError ? { error: true, message: message } : output),\n  timestamp: new Date().toISOString(),\n  envelope: envelopeOut\n} };",
         "mode": "runOnceForEachItem"
       }
     },
@@ -584,36 +590,39 @@
         400
       ],
       "parameters": {
-        "jsCode": "const req = $('Validate Request').first().json;\nconst rows = $input.all().map(function (i) { return i.json; }).filter(function (r) { return r && r.session_id; });\nconst attempt = rows.filter(function (r) {\n  return String(r.session_id) === String(req.session_id) && Number(r.phase) === 3;\n}).length + 1;\nconst inp = req.inputs || {};\nconst S = function (v) { return typeof v === 'string' ? v : JSON.stringify(v, null, 2); };\n\nconst prompt = \"ROLE\\nYou are a content strategist building a minimal, high-leverage content\\narchitecture that closes a founder's positioning gap.\\n\\nCONTEXT\\nYou receive the Phase 1 diagnosis and Phase 2 positioning gap statement.\\nThree fixed pillars structure every architecture:\\n* Authority: what they know that others misunderstand\\n* Market Perspective: a strong belief about their industry\\n* Market Direction: where the industry is heading\\nValidated reference patterns (use for tone and sharpness calibration only,\\ndo not copy content):\\nDemo 1 — HR advisory:\\nAuthority: \\\"Hiring inefficiency costs more than bad recruitment.\\\"\\nPerspective: \\\"Talent strategy must align with business models, not culture slogans.\\\"\\nDirection: \\\"Hybrid workforce complexity will redefine leadership metrics.\\\"\\nDemo 2 — Creative agency:\\nAuthority: \\\"Most brands confuse visibility with differentiation.\\\"\\nPerspective: \\\"Positioning must precede performance marketing.\\\"\\nDirection: \\\"Brand-driven companies will outperform paid-driven companies in 5 years.\\\"\\nDemo 3 — Tech startup:\\nAuthority: \\\"AI adoption is failing due to leadership misunderstanding.\\\"\\nPerspective: \\\"AI is a governance challenge, not a tech challenge.\\\"\\nDirection: \\\"Regulatory AI frameworks will reshape funding criteria.\\\"\\n\\nCOMMAND\\nFor each of the 3 pillars, write ONE sharp, declarative statement that:\\n* Directly closes the positioning gap from Phase 2\\n* Could stand alone as a LinkedIn post hook\\n* Avoids generic business language (no \\\"leverage,\\\" \\\"synergy,\\\" \\\"unlock\\\")\\nThen select the single strongest pillar as the starting point, write\\none supporting angle (1 sentence: why this statement, why now), and\\nsuggest a tone in 2-3 words.\\n\\nFORMAT\\nReturn ONLY valid JSON, no markdown, no preamble:\\n{\\n\\\"pillars\\\": [\\n{ \\\"name\\\": \\\"Authority\\\", \\\"statement\\\": \\\"...\\\" },\\n{ \\\"name\\\": \\\"Market Perspective\\\", \\\"statement\\\": \\\"...\\\" },\\n{ \\\"name\\\": \\\"Market Direction\\\", \\\"statement\\\": \\\"...\\\" }\\n],\\n\\\"starting_point\\\": \\\"Authority|Market Perspective|Market Direction\\\",\\n\\\"angle\\\": \\\"...\\\",\\n\\\"tone\\\": \\\"...\\\"\\n}\" + \"\\n\\n\" + ('PHASE 1 DIAGNOSIS:' + String.fromCharCode(10) + S(inp.phase1_output || '(missing)') + String.fromCharCode(10) + String.fromCharCode(10)\n  + 'PHASE 2 GAP STATEMENT:' + String.fromCharCode(10) + S(inp.phase2_output || '(missing)'));\n\nconst ai_body = {\n  model: req.ai_model,\n  max_tokens: 2048,\n  temperature: 0.4,\n  messages: [{ role: 'user', content: prompt }]\n};\n\nreturn [{ json: Object.assign({}, req, { attempt_number: attempt, ai_body: ai_body }) }];"
+        "jsCode": "const req = $('Validate Request').first().json;\nconst rows = $input.all().map(function (i) { return i.json; }).filter(function (r) { return r && r.session_id; });\nconst attempt = rows.filter(function (r) {\n  return String(r.session_id) === String(req.session_id) && Number(r.phase) === 3;\n}).length + 1;\nconst inp = req.inputs || {};\nconst S = function (v) { return typeof v === 'string' ? v : JSON.stringify(v, null, 2); };\n\nconst prompt_text = \"ROLE\\nYou are a content strategist building a minimal, high-leverage content\\narchitecture that closes a founder's positioning gap.\\n\\nCONTEXT\\nYou receive the Phase 1 diagnosis and Phase 2 positioning gap statement.\\nThree fixed pillars structure every architecture:\\n* Authority: what they know that others misunderstand\\n* Market Perspective: a strong belief about their industry\\n* Market Direction: where the industry is heading\\nValidated reference patterns (use for tone and sharpness calibration only,\\ndo not copy content):\\nDemo 1 — HR advisory:\\nAuthority: \\\"Hiring inefficiency costs more than bad recruitment.\\\"\\nPerspective: \\\"Talent strategy must align with business models, not culture slogans.\\\"\\nDirection: \\\"Hybrid workforce complexity will redefine leadership metrics.\\\"\\nDemo 2 — Creative agency:\\nAuthority: \\\"Most brands confuse visibility with differentiation.\\\"\\nPerspective: \\\"Positioning must precede performance marketing.\\\"\\nDirection: \\\"Brand-driven companies will outperform paid-driven companies in 5 years.\\\"\\nDemo 3 — Tech startup:\\nAuthority: \\\"AI adoption is failing due to leadership misunderstanding.\\\"\\nPerspective: \\\"AI is a governance challenge, not a tech challenge.\\\"\\nDirection: \\\"Regulatory AI frameworks will reshape funding criteria.\\\"\\n\\nCOMMAND\\nFor each of the 3 pillars, write ONE sharp, declarative statement that:\\n* Directly closes the positioning gap from Phase 2\\n* Could stand alone as a LinkedIn post hook\\n* Avoids generic business language (no \\\"leverage,\\\" \\\"synergy,\\\" \\\"unlock\\\")\\nThen select the single strongest pillar as the starting point, write\\none supporting angle (1 sentence: why this statement, why now), and\\nsuggest a tone in 2-3 words.\\n\\nFORMAT\\nReturn ONLY valid JSON, no markdown, no preamble:\\n{\\n\\\"pillars\\\": [\\n{ \\\"name\\\": \\\"Authority\\\", \\\"statement\\\": \\\"...\\\" },\\n{ \\\"name\\\": \\\"Market Perspective\\\", \\\"statement\\\": \\\"...\\\" },\\n{ \\\"name\\\": \\\"Market Direction\\\", \\\"statement\\\": \\\"...\\\" }\\n],\\n\\\"starting_point\\\": \\\"Authority|Market Perspective|Market Direction\\\",\\n\\\"angle\\\": \\\"...\\\",\\n\\\"tone\\\": \\\"...\\\"\\n}\" + \"\\n\\n\" + ('PHASE 1 DIAGNOSIS:' + String.fromCharCode(10) + S(inp.phase1_output || '(missing)') + String.fromCharCode(10) + String.fromCharCode(10)\n  + 'PHASE 2 GAP STATEMENT:' + String.fromCharCode(10) + S(inp.phase2_output || '(missing)'));\n\nreturn [{ json: Object.assign({}, req, { attempt_number: attempt, prompt_text: prompt_text }) }];"
       }
     },
     {
       "id": "kcv-node-20",
       "name": "Call TokenMix P3",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
       "position": [
         -100,
         400
       ],
       "onError": "continueRegularOutput",
       "parameters": {
-        "method": "POST",
-        "url": "https://api.tokenmix.ai/v1/chat/completions",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.ai_body) }}",
-        "options": {
-          "timeout": 90000,
-          "response": {
-            "response": {
-              "responseFormat": "text",
-              "outputPropertyName": "ai_raw",
-              "neverError": true
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.ai_model }}"
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "={{ $json.prompt_text }}"
             }
-          }
+          ]
+        },
+        "simplify": false,
+        "options": {
+          "maxTokens": 2048,
+          "temperature": 0.4
         }
       }
     },
@@ -627,7 +636,7 @@
         400
       ],
       "parameters": {
-        "jsCode": "const src = $('Build Prompt P3').first().json;\nconst raw = $json.ai_raw;\n\nlet output = null;\nlet aiError = false;\n\ntry {\n  if (!raw) { throw new Error('empty response'); }\n  const envelope = JSON.parse(raw);\n  let text = envelope.choices && envelope.choices[0] && envelope.choices[0].message\n    ? envelope.choices[0].message.content\n    : null;\n  if (!text) {\n    throw new Error(envelope.error && envelope.error.message ? envelope.error.message : 'no content in response');\n  }\n  text = String(text).trim();\n  if (text.indexOf('```') === 0) {\n    text = text.replace(/^```[a-zA-Z]*\\s*/, '').replace(/```\\s*$/, '').trim();\n  }\n  output = JSON.parse(text);\n} catch (e) {\n  aiError = true;\n}\n\nconst message = 'Diagnosis incomplete, please retry';\nconst envelopeOut = aiError\n  ? { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: true, message: message }\n  : { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: false, output: output };\n\nreturn { json: {\n  session_id: src.session_id,\n  guest_name: src.guest_name,\n  phase: src.phase,\n  attempt_number: src.attempt_number,\n  input_json: JSON.stringify(src.inputs || {}),\n  output_json: JSON.stringify(aiError ? { error: true, message: message } : output),\n  timestamp: new Date().toISOString(),\n  envelope: envelopeOut\n} };",
+        "jsCode": "const src = $('Build Prompt P3').first().json;\nconst j = $input.item.json || {};\n\nlet output = null;\nlet aiError = false;\n\ntry {\n  // The OpenAI node output shape depends on the \"Simplify Output\" toggle —\n  // handle raw, simplified, and content-block variants.\n  let text = null;\n  if (j.choices && j.choices[0] && j.choices[0].message) {\n    text = j.choices[0].message.content;           // raw API response\n  } else if (j.message && j.message.content != null) {\n    text = j.message.content;                      // simplified output\n  } else if (typeof j.content === 'string') {\n    text = j.content;\n  } else if (typeof j.text === 'string') {\n    text = j.text;\n  } else if (typeof j.output === 'string') {\n    text = j.output;\n  }\n  if (Array.isArray(text)) {\n    text = text.map(function (b) { return (b && (b.text || b.content)) || ''; }).join('');\n  }\n  if (!text) {\n    throw new Error(j.error && j.error.message ? j.error.message : 'no content in response');\n  }\n  text = String(text).trim();\n  if (text.indexOf('```') === 0) {\n    text = text.replace(/^```[a-zA-Z]*\\s*/, '').replace(/```\\s*$/, '').trim();\n  }\n  output = JSON.parse(text);\n} catch (e) {\n  aiError = true;\n}\n\nconst message = 'Diagnosis incomplete, please retry';\nconst envelopeOut = aiError\n  ? { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: true, message: message }\n  : { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: false, output: output };\n\nreturn { json: {\n  session_id: src.session_id,\n  guest_name: src.guest_name,\n  phase: src.phase,\n  attempt_number: src.attempt_number,\n  input_json: JSON.stringify(src.inputs || {}),\n  output_json: JSON.stringify(aiError ? { error: true, message: message } : output),\n  timestamp: new Date().toISOString(),\n  envelope: envelopeOut\n} };",
         "mode": "runOnceForEachItem"
       }
     },
@@ -809,36 +818,39 @@
         720
       ],
       "parameters": {
-        "jsCode": "const req = $('Validate Request').first().json;\nconst rows = $input.all().map(function (i) { return i.json; }).filter(function (r) { return r && r.session_id; });\nconst attempt = rows.filter(function (r) {\n  return String(r.session_id) === String(req.session_id) && Number(r.phase) === 4;\n}).length + 1;\nconst inp = req.inputs || {};\nconst S = function (v) { return typeof v === 'string' ? v : JSON.stringify(v, null, 2); };\n\nconst prompt = \"ROLE\\nYou are a behavioral coach converting a content strategy into one\\nnon-negotiable weekly micro-habit using the A.A.A. Formula:\\nAnchor -> Action -> Asset.\\n\\nCONTEXT\\nThe guest is a solo founder (\\\"Chief Everything Officer\\\") who has just\\ncompleted a 3-phase visibility diagnosis. Your job is to give them one\\nspecific, immediately executable weekly habit — not a plan, not options,\\nnot ranges. One thing. Personalized to their schedule reality.\\nA.A.A. Formula:\\n* Anchor: the trigger that starts the habit. Use Time-Based (specific\\nday/time) for structured schedules. Use Event-Based (tied to a\\nrecurring work event) for chaotic schedules.\\n* Action: a 15-minute content sprint, broken into 3 timed steps\\n(Min 1-5 / Min 5-12 / Min 12-15). Each step tells the guest exactly\\nwhat to write or record — use a Fill-in-the-Blanks frame\\n(e.g. \\\"Write: The biggest mistake [industry] makes about ___ is ___.\\\")\\nso there is zero decision-making required.\\n* Asset: the specific output format they post or publish.\\nValidated reference (tone and structure only, do not copy content):\\nGuest: HR advisor, chaotic schedule, anchor = \\\"after client delivery\\\"\\nOutput title: \\\"The Strategy Signal\\\"\\nAnchor: \\\"Every time you send a final deliverable — redirect 15 min before\\nopening email.\\\"\\nMin 1-5: Write \\\"The biggest mistake companies make about [workforce] is ___.\\\"\\nMin 5-12: Expand into 3 paragraphs: the mistake / why it persists / the\\nright frame.\\nMin 12-15: Post to LinkedIn with closing question. Done.\\nPayoff: \\\"You stop being the person people call to fill a role. You become\\nthe person people quote when workforce strategy is discussed at board level.\\\"\\n\\nCOMMAND\\nUsing the guest's profession, positioning gap, schedule context, and anchor\\nactivity as primary inputs (Phase 3 architecture as supporting context):\\n1. Give this habit a short, memorable operational name (The Reflex Title).\\n2. Define the Anchor Point: exactly when and how to trigger, personalized\\nto their schedule_context. Be specific — name the activity, not\\na category.\\n3. Write the 15-Minute Action Sprint with exact minute-by-minute steps.\\nEach step must include a Fill-in-the-Blanks sentence the guest\\ncompletes — no open-ended thinking required.\\n4. Write the Authority Payoff: one short paragraph explaining how this\\nspecific habit shifts their market perception from Operator to Authority.\\nBe maximally specific. No ranges, no options, no \\\"you could also.\\\"\\n\\nFORMAT\\nReturn ONLY valid JSON, no markdown, no preamble:\\n{\\n\\\"reflex_title\\\": \\\"...\\\",\\n\\\"anchor_point\\\": \\\"...\\\",\\n\\\"action_sprint\\\": [\\n{ \\\"minutes\\\": \\\"1-5\\\", \\\"instruction\\\": \\\"...\\\", \\\"fill_in_frame\\\": \\\"...\\\" },\\n{ \\\"minutes\\\": \\\"5-12\\\", \\\"instruction\\\": \\\"...\\\", \\\"fill_in_frame\\\": \\\"...\\\" },\\n{ \\\"minutes\\\": \\\"12-15\\\", \\\"instruction\\\": \\\"...\\\", \\\"fill_in_frame\\\": \\\"...\\\" }\\n],\\n\\\"asset\\\": \\\"...\\\",\\n\\\"authority_payoff\\\": \\\"...\\\"\\n}\" + \"\\n\\n\" + ('GUEST PROFESSION: ' + S(inp.profession || '(missing)') + String.fromCharCode(10)\n  + 'SCHEDULE CONTEXT: ' + S(inp.schedule_context || '(missing)') + String.fromCharCode(10)\n  + 'ANCHOR ACTIVITY: ' + S(inp.anchor_activity || '(missing)') + String.fromCharCode(10)\n  + 'POSITIONING GAP: ' + S(inp.phase2_output || '(missing)') + String.fromCharCode(10)\n  + 'PHASE 3 ARCHITECTURE: ' + S(inp.phase3_output || '(missing)'));\n\nconst ai_body = {\n  model: req.ai_model,\n  max_tokens: 2048,\n  temperature: 0.4,\n  messages: [{ role: 'user', content: prompt }]\n};\n\nreturn [{ json: Object.assign({}, req, { attempt_number: attempt, ai_body: ai_body }) }];"
+        "jsCode": "const req = $('Validate Request').first().json;\nconst rows = $input.all().map(function (i) { return i.json; }).filter(function (r) { return r && r.session_id; });\nconst attempt = rows.filter(function (r) {\n  return String(r.session_id) === String(req.session_id) && Number(r.phase) === 4;\n}).length + 1;\nconst inp = req.inputs || {};\nconst S = function (v) { return typeof v === 'string' ? v : JSON.stringify(v, null, 2); };\n\nconst prompt_text = \"ROLE\\nYou are a behavioral coach converting a content strategy into one\\nnon-negotiable weekly micro-habit using the A.A.A. Formula:\\nAnchor -> Action -> Asset.\\n\\nCONTEXT\\nThe guest is a solo founder (\\\"Chief Everything Officer\\\") who has just\\ncompleted a 3-phase visibility diagnosis. Your job is to give them one\\nspecific, immediately executable weekly habit — not a plan, not options,\\nnot ranges. One thing. Personalized to their schedule reality.\\nA.A.A. Formula:\\n* Anchor: the trigger that starts the habit. Use Time-Based (specific\\nday/time) for structured schedules. Use Event-Based (tied to a\\nrecurring work event) for chaotic schedules.\\n* Action: a 15-minute content sprint, broken into 3 timed steps\\n(Min 1-5 / Min 5-12 / Min 12-15). Each step tells the guest exactly\\nwhat to write or record — use a Fill-in-the-Blanks frame\\n(e.g. \\\"Write: The biggest mistake [industry] makes about ___ is ___.\\\")\\nso there is zero decision-making required.\\n* Asset: the specific output format they post or publish.\\nValidated reference (tone and structure only, do not copy content):\\nGuest: HR advisor, chaotic schedule, anchor = \\\"after client delivery\\\"\\nOutput title: \\\"The Strategy Signal\\\"\\nAnchor: \\\"Every time you send a final deliverable — redirect 15 min before\\nopening email.\\\"\\nMin 1-5: Write \\\"The biggest mistake companies make about [workforce] is ___.\\\"\\nMin 5-12: Expand into 3 paragraphs: the mistake / why it persists / the\\nright frame.\\nMin 12-15: Post to LinkedIn with closing question. Done.\\nPayoff: \\\"You stop being the person people call to fill a role. You become\\nthe person people quote when workforce strategy is discussed at board level.\\\"\\n\\nCOMMAND\\nUsing the guest's profession, positioning gap, schedule context, and anchor\\nactivity as primary inputs (Phase 3 architecture as supporting context):\\n1. Give this habit a short, memorable operational name (The Reflex Title).\\n2. Define the Anchor Point: exactly when and how to trigger, personalized\\nto their schedule_context. Be specific — name the activity, not\\na category.\\n3. Write the 15-Minute Action Sprint with exact minute-by-minute steps.\\nEach step must include a Fill-in-the-Blanks sentence the guest\\ncompletes — no open-ended thinking required.\\n4. Write the Authority Payoff: one short paragraph explaining how this\\nspecific habit shifts their market perception from Operator to Authority.\\nBe maximally specific. No ranges, no options, no \\\"you could also.\\\"\\n\\nFORMAT\\nReturn ONLY valid JSON, no markdown, no preamble:\\n{\\n\\\"reflex_title\\\": \\\"...\\\",\\n\\\"anchor_point\\\": \\\"...\\\",\\n\\\"action_sprint\\\": [\\n{ \\\"minutes\\\": \\\"1-5\\\", \\\"instruction\\\": \\\"...\\\", \\\"fill_in_frame\\\": \\\"...\\\" },\\n{ \\\"minutes\\\": \\\"5-12\\\", \\\"instruction\\\": \\\"...\\\", \\\"fill_in_frame\\\": \\\"...\\\" },\\n{ \\\"minutes\\\": \\\"12-15\\\", \\\"instruction\\\": \\\"...\\\", \\\"fill_in_frame\\\": \\\"...\\\" }\\n],\\n\\\"asset\\\": \\\"...\\\",\\n\\\"authority_payoff\\\": \\\"...\\\"\\n}\" + \"\\n\\n\" + ('GUEST PROFESSION: ' + S(inp.profession || '(missing)') + String.fromCharCode(10)\n  + 'SCHEDULE CONTEXT: ' + S(inp.schedule_context || '(missing)') + String.fromCharCode(10)\n  + 'ANCHOR ACTIVITY: ' + S(inp.anchor_activity || '(missing)') + String.fromCharCode(10)\n  + 'POSITIONING GAP: ' + S(inp.phase2_output || '(missing)') + String.fromCharCode(10)\n  + 'PHASE 3 ARCHITECTURE: ' + S(inp.phase3_output || '(missing)'));\n\nreturn [{ json: Object.assign({}, req, { attempt_number: attempt, prompt_text: prompt_text }) }];"
       }
     },
     {
       "id": "kcv-node-26",
       "name": "Call TokenMix P4",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
       "position": [
         -100,
         720
       ],
       "onError": "continueRegularOutput",
       "parameters": {
-        "method": "POST",
-        "url": "https://api.tokenmix.ai/v1/chat/completions",
-        "authentication": "genericCredentialType",
-        "genericAuthType": "httpHeaderAuth",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify($json.ai_body) }}",
-        "options": {
-          "timeout": 90000,
-          "response": {
-            "response": {
-              "responseFormat": "text",
-              "outputPropertyName": "ai_raw",
-              "neverError": true
+        "resource": "text",
+        "operation": "message",
+        "modelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.ai_model }}"
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "user",
+              "content": "={{ $json.prompt_text }}"
             }
-          }
+          ]
+        },
+        "simplify": false,
+        "options": {
+          "maxTokens": 2048,
+          "temperature": 0.4
         }
       }
     },
@@ -852,7 +864,7 @@
         720
       ],
       "parameters": {
-        "jsCode": "const src = $('Build Prompt P4').first().json;\nconst raw = $json.ai_raw;\n\nlet output = null;\nlet aiError = false;\n\ntry {\n  if (!raw) { throw new Error('empty response'); }\n  const envelope = JSON.parse(raw);\n  let text = envelope.choices && envelope.choices[0] && envelope.choices[0].message\n    ? envelope.choices[0].message.content\n    : null;\n  if (!text) {\n    throw new Error(envelope.error && envelope.error.message ? envelope.error.message : 'no content in response');\n  }\n  text = String(text).trim();\n  if (text.indexOf('```') === 0) {\n    text = text.replace(/^```[a-zA-Z]*\\s*/, '').replace(/```\\s*$/, '').trim();\n  }\n  output = JSON.parse(text);\n} catch (e) {\n  aiError = true;\n}\n\nconst message = 'Diagnosis incomplete, please retry';\nconst envelopeOut = aiError\n  ? { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: true, message: message }\n  : { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: false, output: output };\n\nreturn { json: {\n  session_id: src.session_id,\n  guest_name: src.guest_name,\n  phase: src.phase,\n  attempt_number: src.attempt_number,\n  input_json: JSON.stringify(src.inputs || {}),\n  output_json: JSON.stringify(aiError ? { error: true, message: message } : output),\n  timestamp: new Date().toISOString(),\n  envelope: envelopeOut\n} };",
+        "jsCode": "const src = $('Build Prompt P4').first().json;\nconst j = $input.item.json || {};\n\nlet output = null;\nlet aiError = false;\n\ntry {\n  // The OpenAI node output shape depends on the \"Simplify Output\" toggle —\n  // handle raw, simplified, and content-block variants.\n  let text = null;\n  if (j.choices && j.choices[0] && j.choices[0].message) {\n    text = j.choices[0].message.content;           // raw API response\n  } else if (j.message && j.message.content != null) {\n    text = j.message.content;                      // simplified output\n  } else if (typeof j.content === 'string') {\n    text = j.content;\n  } else if (typeof j.text === 'string') {\n    text = j.text;\n  } else if (typeof j.output === 'string') {\n    text = j.output;\n  }\n  if (Array.isArray(text)) {\n    text = text.map(function (b) { return (b && (b.text || b.content)) || ''; }).join('');\n  }\n  if (!text) {\n    throw new Error(j.error && j.error.message ? j.error.message : 'no content in response');\n  }\n  text = String(text).trim();\n  if (text.indexOf('```') === 0) {\n    text = text.replace(/^```[a-zA-Z]*\\s*/, '').replace(/```\\s*$/, '').trim();\n  }\n  output = JSON.parse(text);\n} catch (e) {\n  aiError = true;\n}\n\nconst message = 'Diagnosis incomplete, please retry';\nconst envelopeOut = aiError\n  ? { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: true, message: message }\n  : { session_id: src.session_id, phase: src.phase, attempt_number: src.attempt_number, error: false, output: output };\n\nreturn { json: {\n  session_id: src.session_id,\n  guest_name: src.guest_name,\n  phase: src.phase,\n  attempt_number: src.attempt_number,\n  input_json: JSON.stringify(src.inputs || {}),\n  output_json: JSON.stringify(aiError ? { error: true, message: message } : output),\n  timestamp: new Date().toISOString(),\n  envelope: envelopeOut\n} };",
         "mode": "runOnceForEachItem"
       }
     },
