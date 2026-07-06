@@ -224,17 +224,17 @@
     <h2>Phase 1</h2>
     <h3>Visibility Friction Extractor</h3>
     <div id="form1">
-      <label for="p1-guest">Guest name (optional)</label>
+      <label for="p1-guest">Your name (optional)</label>
       <input type="text" id="p1-guest" placeholder="e.g. Sarah — HR advisory founder">
-      <label for="p1-visibility">Visibility priority — where does visibility rank in their week?</label>
-      <textarea id="p1-visibility" placeholder="Guest's answer, as spoken…"></textarea>
-      <label for="p1-communication">Communication habits — how and when do they currently show up?</label>
+      <label for="p1-visibility">Visibility priority — where does visibility rank in your week?</label>
+      <textarea id="p1-visibility" placeholder="Answer in your own words…"></textarea>
+      <label for="p1-communication">Communication habits — how and when do you currently show up?</label>
       <textarea id="p1-communication"></textarea>
-      <label for="p1-target">Target clarity — who exactly are they trying to reach?</label>
+      <label for="p1-target">Target clarity — who exactly are you trying to reach?</label>
       <textarea id="p1-target"></textarea>
-      <label for="p1-revenue">Revenue connection — what stops if they go invisible for 60 days?</label>
+      <label for="p1-revenue">Revenue connection — what stops if you go invisible for 60 days?</label>
       <textarea id="p1-revenue"></textarea>
-      <label for="p1-authority">Authority signals — what do they know better than competitors?</label>
+      <label for="p1-authority">Authority signals — what do you know better than your competitors?</label>
       <textarea id="p1-authority"></textarea>
       <button class="primary" id="run1">Run Phase 1 diagnosis</button>
     </div>
@@ -263,7 +263,7 @@
     <h2>Phase 3</h2>
     <h3>Content Architecture Builder</h3>
     <div id="form3">
-      <p style="color: var(--muted); font-size: 14px;">Builds the 3-pillar architecture from the Phase 1 diagnosis and the Phase 2 gap statement. No input needed.</p>
+      <p style="color: var(--muted); font-size: 14px;">Builds your 3-pillar content architecture from your diagnosis and gap statement. Nothing to fill in — just run it.</p>
       <button class="primary" id="run3">Build the architecture</button>
     </div>
     <div class="result-block hidden" id="result3"></div>
@@ -276,14 +276,14 @@
     <h2>Phase 4</h2>
     <h3>Visibility Reflex — A.A.A. Formula</h3>
     <div id="form4">
-      <label for="p4-profession">Profession</label>
+      <label for="p4-profession">Your profession</label>
       <input type="text" id="p4-profession" placeholder='e.g. "HR advisor", "creative agency founder"'>
-      <label>Schedule context</label>
+      <label>How does your typical week run?</label>
       <div class="radio-row">
         <label class="radio-pill"><input type="radio" name="p4-schedule" value="structured"><span>Structured</span></label>
         <label class="radio-pill"><input type="radio" name="p4-schedule" value="chaotic"><span>Chaotic</span></label>
       </div>
-      <label for="p4-anchor">Anchor activity — a recurring moment in their week</label>
+      <label for="p4-anchor">Anchor activity — a recurring moment in your week</label>
       <input type="text" id="p4-anchor" placeholder='e.g. "Monday client check-in", "sending final deliverable"'>
       <button class="primary" id="run4" disabled>Install the reflex</button>
     </div>
@@ -434,7 +434,7 @@ $('run1').addEventListener('click', async () => {
     authority_signals: $('p1-authority').value.trim()
   };
   if (!Object.values(inputs).some((v) => v)) {
-    showError(1, 'Enter at least one guest answer before running the diagnosis.');
+    showError(1, 'Enter at least one answer before running the diagnosis.');
     return;
   }
   setLoading($('run1'), true, 'Extracting friction…');
