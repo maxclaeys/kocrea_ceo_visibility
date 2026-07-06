@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The CEO Visibility Reset — Live Diagnosis</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b22;
+    --card-inner: #1c2330;
+    --border: #2d3543;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #e3b341;
+    --accent-soft: rgba(227, 179, 65, 0.12);
+    --red: #f85149;
+    --amber: #d29922;
+    --green: #3fb950;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    padding-bottom: 80px;
+  }
+  header {
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+    padding: 22px 28px; border-bottom: 1px solid var(--border);
+  }
+  .brand { font-weight: 800; letter-spacing: 0.14em; font-size: 15px; }
+  .brand span { color: var(--accent); font-weight: 500; letter-spacing: 0.06em; margin-left: 10px; font-size: 12px; text-transform: uppercase; }
+  .session-tools { display: flex; align-items: center; gap: 10px; }
+  .chip {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 12px; color: var(--muted);
+    border: 1px solid var(--border); border-radius: 999px; padding: 4px 12px;
+  }
+  main { max-width: 880px; margin: 0 auto; padding: 0 20px; }
+
+  .progress { display: flex; gap: 8px; max-width: 880px; margin: 26px auto 6px; padding: 0 20px; }
+  .progress .seg { flex: 1; text-align: center; }
+  .progress .bar { height: 5px; border-radius: 3px; background: var(--border); margin-bottom: 7px; transition: background 0.3s; }
+  .progress .seg.done .bar { background: var(--green); }
+  .progress .seg.active .bar { background: var(--accent); }
+  .progress .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .progress .seg.active .lbl { color: var(--accent); }
+  .progress .seg.done .lbl { color: var(--green); }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 26px 28px; margin-top: 24px;
+  }
+  .card.hidden, .hidden { display: none !important; }
+  .card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent); margin-bottom: 4px; }
+  .card h3 { font-size: 20px; margin-bottom: 16px; font-weight: 700; }
+  label { display: block; font-size: 13px; color: var(--muted); margin: 14px 0 5px; }
+  textarea, input[type="text"] {
+    width: 100%; background: var(--card-inner); border: 1px solid var(--border); border-radius: 6px;
+    color: var(--text); padding: 10px 12px; font: inherit; font-size: 14px;
+  }
+  textarea { min-height: 64px; resize: vertical; }
+  textarea:focus, input:focus { outline: none; border-color: var(--accent); }
+
+  .radio-row { display: flex; gap: 10px; margin-top: 4px; }
+  .radio-pill { flex: 1; }
+  .radio-pill input { position: absolute; opacity: 0; }
+  .radio-pill span {
+    display: block; text-align: center; padding: 10px; border: 1px solid var(--border);
+    border-radius: 6px; cursor: pointer; font-size: 14px; color: var(--muted); background: var(--card-inner);
+  }
+  .radio-pill input:checked + span { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); font-weight: 600; }
+
+  button {
+    font: inherit; cursor: pointer; border-radius: 6px; border: none;
+    padding: 11px 22px; font-weight: 600; font-size: 14px;
+  }
+  button.primary { background: var(--accent); color: #14100a; margin-top: 20px; }
+  button.primary:hover:not(:disabled) { filter: brightness(1.1); }
+  button:disabled { opacity: 0.45; cursor: not-allowed; }
+  button.ghost {
+    background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 5px 14px; font-size: 12px;
+  }
+  button.ghost:hover { color: var(--text); border-color: var(--muted); }
+  .redo-row { margin-top: 18px; text-align: right; }
+
+  .spinner {
+    display: inline-block; width: 13px; height: 13px; border: 2px solid rgba(0,0,0,0.35);
+    border-top-color: transparent; border-radius: 50%; margin-right: 8px; vertical-align: -2px;
+    animation: spin 0.7s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error {
+    margin-top: 16px; padding: 12px 14px; border: 1px solid var(--red); border-radius: 6px;
+    color: var(--red); background: rgba(248, 81, 73, 0.08); font-size: 14px;
+  }
+
+  /* Phase 1 result */
+  table.dims { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  table.dims td { padding: 10px 10px 10px 0; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 14px; }
+  table.dims tr:last-child td { border-bottom: none; }
+  td.dim-name { white-space: nowrap; font-weight: 600; width: 1%; padding-right: 18px; }
+  .badge {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+    border-radius: 4px; padding: 3px 9px; margin-right: 14px;
+  }
+  .badge.LOW { background: rgba(248,81,73,0.15); color: var(--red); border: 1px solid var(--red); }
+  .badge.MEDIUM { background: rgba(210,153,34,0.15); color: var(--amber); border: 1px solid var(--amber); }
+  .badge.HIGH { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid var(--green); }
+  .diagnosis {
+    margin-top: 20px; padding: 16px 18px; border-left: 3px solid var(--accent);
+    background: var(--accent-soft); border-radius: 0 6px 6px 0; font-size: 15px; font-weight: 500;
+  }
+
+  /* Phase 2 result */
+  .gap-quote {
+    font-family: Georgia, "Times New Roman", serif; font-size: 26px; line-height: 1.4;
+    padding: 26px 30px; margin-top: 10px; border-left: 4px solid var(--accent);
+    background: var(--card-inner); border-radius: 0 var(--radius) var(--radius) 0;
+  }
+  .gap-quote::before { content: "\201C"; color: var(--accent); font-size: 34px; line-height: 0; margin-right: 4px; }
+  .gap-meta { margin-top: 14px; font-size: 13px; color: var(--muted); }
+  .gap-meta strong { color: var(--text); }
+  .gap-meta .arrow { color: var(--accent); margin: 0 8px; }
+
+  /* Phase 3 result */
+  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 10px; }
+  @media (max-width: 700px) { .pillars { grid-template-columns: 1fr; } }
+  .pillar {
+    background: var(--card-inner); border: 1px solid var(--border); border-radius: 8px; padding: 16px;
+    position: relative;
+  }
+  .pillar.start { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .pillar .p-name { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 8px; }
+  .pillar.start .p-name { color: var(--accent); }
+  .pillar .p-stmt { font-size: 15px; font-weight: 600; }
+  .start-flag {
+    position: absolute; top: -9px; right: 10px; background: var(--accent); color: #14100a;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.08em; padding: 2px 8px; border-radius: 4px;
+  }
+  .p3-meta { margin-top: 16px; font-size: 14px; color: var(--muted); }
+  .p3-meta strong { color: var(--text); }
+
+  /* Phase 4 result */
+  .reflex-title { font-size: 30px; font-weight: 800; margin: 6px 0 16px; color: var(--accent); }
+  .anchor-callout {
+    padding: 14px 18px; background: var(--card-inner); border: 1px solid var(--accent);
+    border-radius: 8px; font-size: 15px; font-weight: 500;
+  }
+  .anchor-callout .a-lbl { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); margin-bottom: 5px; }
+  .sprint { margin-top: 16px; }
+  .sprint-row {
+    display: grid; grid-template-columns: 84px 1fr; gap: 14px;
+    padding: 13px 0; border-bottom: 1px solid var(--border);
+  }
+  .sprint-row:last-child { border-bottom: none; }
+  .min-chip {
+    align-self: start; text-align: center; font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 12px; font-weight: 700; color: var(--accent);
+    border: 1px solid var(--accent); border-radius: 6px; padding: 5px 4px;
+  }
+  .sprint-instr { font-size: 14px; }
+  .frame {
+    display: block; margin-top: 7px; padding: 9px 12px; font-style: italic; font-size: 14px;
+    background: var(--accent-soft); border-radius: 6px; color: var(--accent);
+  }
+  .asset-line { margin-top: 14px; font-size: 14px; }
+  .asset-line strong { color: var(--accent); text-transform: uppercase; font-size: 11px; letter-spacing: 0.1em; margin-right: 8px; }
+  .payoff {
+    font-family: Georgia, "Times New Roman", serif; font-size: 19px; line-height: 1.5;
+    margin-top: 20px; padding: 20px 24px; border-left: 4px solid var(--green);
+    background: var(--card-inner); border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  .result-block { margin-top: 6px; }
+  footer { text-align: center; color: var(--muted); font-size: 12px; margin-top: 48px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">THE CEO VISIBILITY RESET <span>live diagnosis</span></div>
+  <div class="session-tools">
+    <span id="sessionChip" class="chip hidden"></span>
+    <button id="startAgainBtn" class="ghost hidden">Start again</button>
+  </div>
+</header>
+
+<div class="progress" id="progress">
+  <div class="seg" data-seg="1"><div class="bar"></div><div class="lbl">1 · Friction</div></div>
+  <div class="seg" data-seg="2"><div class="bar"></div><div class="lbl">2 · Gap</div></div>
+  <div class="seg" data-seg="3"><div class="bar"></div><div class="lbl">3 · Architecture</div></div>
+  <div class="seg" data-seg="4"><div class="bar"></div><div class="lbl">4 · Reflex</div></div>
+</div>
+
+<main>
+
+  <!-- ===================== PHASE 1 ===================== -->
+  <section class="card" id="card1">
+    <h2>Phase 1</h2>
+    <h3>Visibility Friction Extractor</h3>
+    <div id="form1">
+      <label for="p1-guest">Guest name (optional)</label>
+      <input type="text" id="p1-guest" placeholder="e.g. Sarah — HR advisory founder">
+      <label for="p1-visibility">Visibility priority — where does visibility rank in their week?</label>
+      <textarea id="p1-visibility" placeholder="Guest's answer, as spoken…"></textarea>
+      <label for="p1-communication">Communication habits — how and when do they currently show up?</label>
+      <textarea id="p1-communication"></textarea>
+      <label for="p1-target">Target clarity — who exactly are they trying to reach?</label>
+      <textarea id="p1-target"></textarea>
+      <label for="p1-revenue">Revenue connection — what stops if they go invisible for 60 days?</label>
+      <textarea id="p1-revenue"></textarea>
+      <label for="p1-authority">Authority signals — what do they know better than competitors?</label>
+      <textarea id="p1-authority"></textarea>
+      <button class="primary" id="run1">Run Phase 1 diagnosis</button>
+    </div>
+    <div class="result-block hidden" id="result1"></div>
+    <div class="error hidden" id="error1"></div>
+  </section>
+
+  <!-- ===================== PHASE 2 ===================== -->
+  <section class="card hidden" id="card2">
+    <h2>Phase 2</h2>
+    <h3>Identity Gap Articulator</h3>
+    <div id="form2">
+      <label for="p2-current">What are you currently known for?</label>
+      <textarea id="p2-current"></textarea>
+      <label for="p2-desired">What do you want to be known for?</label>
+      <textarea id="p2-desired"></textarea>
+      <button class="primary" id="run2">Articulate the gap</button>
+    </div>
+    <div class="result-block hidden" id="result2"></div>
+    <div class="error hidden" id="error2"></div>
+    <div class="redo-row hidden" id="redo2-row"><button class="ghost" id="redo2">Redo this phase</button></div>
+  </section>
+
+  <!-- ===================== PHASE 3 ===================== -->
+  <section class="card hidden" id="card3">
+    <h2>Phase 3</h2>
+    <h3>Content Architecture Builder</h3>
+    <div id="form3">
+      <p style="color: var(--muted); font-size: 14px;">Builds the 3-pillar architecture from the Phase 1 diagnosis and the Phase 2 gap statement. No input needed.</p>
+      <button class="primary" id="run3">Build the architecture</button>
+    </div>
+    <div class="result-block hidden" id="result3"></div>
+    <div class="error hidden" id="error3"></div>
+    <div class="redo-row hidden" id="redo3-row"><button class="ghost" id="redo3">Redo this phase</button></div>
+  </section>
+
+  <!-- ===================== PHASE 4 ===================== -->
+  <section class="card hidden" id="card4">
+    <h2>Phase 4</h2>
+    <h3>Visibility Reflex — A.A.A. Formula</h3>
+    <div id="form4">
+      <label for="p4-profession">Profession</label>
+      <input type="text" id="p4-profession" placeholder='e.g. "HR advisor", "creative agency founder"'>
+      <label>Schedule context</label>
+      <div class="radio-row">
+        <label class="radio-pill"><input type="radio" name="p4-schedule" value="structured"><span>Structured</span></label>
+        <label class="radio-pill"><input type="radio" name="p4-schedule" value="chaotic"><span>Chaotic</span></label>
+      </div>
+      <label for="p4-anchor">Anchor activity — a recurring moment in their week</label>
+      <input type="text" id="p4-anchor" placeholder='e.g. "Monday client check-in", "sending final deliverable"'>
+      <button class="primary" id="run4" disabled>Install the reflex</button>
+    </div>
+    <div class="result-block hidden" id="result4"></div>
+    <div class="error hidden" id="error4"></div>
+    <div class="redo-row hidden" id="redo4-row"><button class="ghost" id="redo4">Redo this phase</button></div>
+  </section>
+
+</main>
+
+<footer>Kocrea · internal live-recording tool</footer>
+
+<script>
+/* ======================= CONFIG — EDIT BEFORE DEPLOY ======================= */
+const WEBHOOK_URL   = 'https://n8n.seichodigital.com/webhook/ceo-visibility';
+const SHARED_SECRET = 'REPLACE_WITH_YOUR_SHARED_SECRET'; /* must match the n8n Validate Request node */
+/* =========================================================================== */
+
+'use strict';
+
+/* ---- in-memory session state (resets on refresh, by design) ---- */
+let state = newState();
+function newState() {
+  return { session_id: null, guest_name: '', outputs: { 1: null, 2: null, 3: null, 4: null } };
+}
+
+const $ = (id) => document.getElementById(id);
+const esc = (v) => String(v == null ? '' : v)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+
+/* ---- webhook call ---- */
+async function callPhase(phase, inputs) {
+  const payload = {
+    phase: phase,
+    session_id: phase === 1 ? null : state.session_id,
+    guest_name: state.guest_name || '',
+    inputs: inputs
+  };
+  let res, data;
+  try {
+    res = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Shared-Secret': SHARED_SECRET },
+      body: JSON.stringify(payload)
+    });
+  } catch (e) {
+    throw new Error('Network error — could not reach the diagnosis engine. Check the connection and retry.');
+  }
+  try {
+    data = await res.json();
+  } catch (e) {
+    throw new Error('The engine returned an unreadable response (HTTP ' + res.status + '). Retry this phase.');
+  }
+  if (!res.ok || data.error) {
+    throw new Error(data && data.message ? data.message : 'Request failed (HTTP ' + res.status + '). Retry this phase.');
+  }
+  if (!data.output) {
+    throw new Error('The engine responded without a diagnosis. Retry this phase.');
+  }
+  return data;
+}
+
+/* ---- UI helpers ---- */
+function setLoading(btn, on, label) {
+  btn.disabled = on;
+  if (on) { btn.dataset.label = btn.textContent; btn.innerHTML = '<span class="spinner"></span>' + label; }
+  else if (btn.dataset.label) { btn.textContent = btn.dataset.label; }
+}
+function showError(phase, msg) { const el = $('error' + phase); el.textContent = msg; el.classList.remove('hidden'); }
+function clearError(phase) { $('error' + phase).classList.add('hidden'); }
+
+function updateProgress() {
+  let active = 1;
+  for (let p = 1; p <= 4; p++) { if (state.outputs[p]) active = Math.min(p + 1, 4); }
+  document.querySelectorAll('#progress .seg').forEach((seg) => {
+    const p = Number(seg.dataset.seg);
+    seg.classList.toggle('done', !!state.outputs[p]);
+    seg.classList.toggle('active', !state.outputs[p] && p === active);
+  });
+}
+
+function updateSessionChip() {
+  const chip = $('sessionChip'), again = $('startAgainBtn');
+  if (state.session_id) {
+    chip.textContent = 'session ' + state.session_id.slice(0, 8);
+    chip.classList.remove('hidden');
+    again.classList.remove('hidden');
+  } else {
+    chip.classList.add('hidden');
+    again.classList.add('hidden');
+  }
+}
+
+function completePhase(phase, data, renderFn) {
+  state.outputs[phase] = data.output;
+  renderFn(data.output);
+  $('result' + phase).classList.remove('hidden');
+  $('form' + phase).classList.add('hidden');
+  if (phase > 1) $('redo' + phase + '-row').classList.remove('hidden');
+  if (phase < 4) {
+    $('card' + (phase + 1)).classList.remove('hidden');
+    $('card' + (phase + 1)).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  updateProgress();
+  updateSessionChip();
+}
+
+/* ---- redo: hide downstream, reopen own form, keep session + earlier outputs ---- */
+function redoPhase(n) {
+  for (let p = n; p <= 4; p++) {
+    state.outputs[p] = null;
+    $('result' + p).classList.add('hidden');
+    $('error' + p).classList.add('hidden');
+    if (p >= 2) $('redo' + p + '-row').classList.add('hidden');
+    if (p > n) $('card' + p).classList.add('hidden');
+  }
+  $('form' + n).classList.remove('hidden');
+  updateProgress();
+  $('card' + n).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* ---- start again: full reset ---- */
+$('startAgainBtn').addEventListener('click', () => {
+  state = newState();
+  for (let p = 1; p <= 4; p++) {
+    $('result' + p).classList.add('hidden');
+    $('result' + p).innerHTML = '';
+    $('error' + p).classList.add('hidden');
+    $('form' + p).classList.remove('hidden');
+    if (p >= 2) { $('card' + p).classList.add('hidden'); $('redo' + p + '-row').classList.add('hidden'); }
+  }
+  document.querySelectorAll('#form1 textarea, #form1 input').forEach((el) => (el.value = ''));
+  updateProgress();
+  updateSessionChip();
+  $('card1').scrollIntoView({ behavior: 'smooth' });
+});
+
+/* ===================== PHASE 1 ===================== */
+$('run1').addEventListener('click', async () => {
+  clearError(1);
+  state.guest_name = $('p1-guest').value.trim();
+  const inputs = {
+    visibility_priority: $('p1-visibility').value.trim(),
+    communication_habits: $('p1-communication').value.trim(),
+    target_clarity: $('p1-target').value.trim(),
+    revenue_connection: $('p1-revenue').value.trim(),
+    authority_signals: $('p1-authority').value.trim()
+  };
+  if (!Object.values(inputs).some((v) => v)) {
+    showError(1, 'Enter at least one guest answer before running the diagnosis.');
+    return;
+  }
+  setLoading($('run1'), true, 'Extracting friction…');
+  try {
+    const data = await callPhase(1, inputs);
+    state.session_id = data.session_id;
+    completePhase(1, data, renderPhase1);
+  } catch (e) {
+    showError(1, e.message);
+  } finally {
+    setLoading($('run1'), false);
+  }
+});
+
+function renderPhase1(out) {
+  const dims = Array.isArray(out.dimensions) ? out.dimensions : [];
+  let rows = dims.map((d) => {
+    const m = String(d.maturity || '').toUpperCase();
+    const cls = ['LOW', 'MEDIUM', 'HIGH'].includes(m) ? m : 'MEDIUM';
+    return '<tr><td class="dim-name">' + esc(d.name) + '</td>' +
+           '<td><span class="badge ' + cls + '">' + esc(m || '?') + '</span></td>' +
+           '<td>' + esc(d.issue) + '</td></tr>';
+  }).join('');
+  $('result1').innerHTML =
+    '<table class="dims">' + rows + '</table>' +
+    '<div class="diagnosis">' + esc(out.diagnosis) + '</div>';
+}
+
+/* ===================== PHASE 2 ===================== */
+$('run2').addEventListener('click', async () => {
+  clearError(2);
+  const inputs = {
+    phase1_output: state.outputs[1],
+    current_known_for: $('p2-current').value.trim(),
+    wants_to_be_known_for: $('p2-desired').value.trim()
+  };
+  if (!inputs.current_known_for || !inputs.wants_to_be_known_for) {
+    showError(2, 'Both fields are needed to articulate the gap.');
+    return;
+  }
+  setLoading($('run2'), true, 'Articulating the gap…');
+  try {
+    const data = await callPhase(2, inputs);
+    completePhase(2, data, renderPhase2);
+  } catch (e) {
+    showError(2, e.message);
+  } finally {
+    setLoading($('run2'), false);
+  }
+});
+
+function renderPhase2(out) {
+  $('result2').innerHTML =
+    '<blockquote class="gap-quote">' + esc(out.gap_statement) + '</blockquote>' +
+    '<div class="gap-meta"><strong>' + esc(out.current_role) + '</strong>' +
+    '<span class="arrow">&rarr;</span><strong>' + esc(out.desired_role) + '</strong>' +
+    ' &nbsp;·&nbsp; ' + esc(out.gap_label) + '</div>';
+}
+
+/* ===================== PHASE 3 ===================== */
+$('run3').addEventListener('click', async () => {
+  clearError(3);
+  setLoading($('run3'), true, 'Building the architecture…');
+  try {
+    const data = await callPhase(3, {
+      phase1_output: state.outputs[1],
+      phase2_output: state.outputs[2]
+    });
+    completePhase(3, data, renderPhase3);
+  } catch (e) {
+    showError(3, e.message);
+  } finally {
+    setLoading($('run3'), false);
+  }
+});
+
+function renderPhase3(out) {
+  const pillars = Array.isArray(out.pillars) ? out.pillars : [];
+  const start = String(out.starting_point || '');
+  const grid = pillars.map((p) => {
+    const isStart = p.name === start;
+    return '<div class="pillar' + (isStart ? ' start' : '') + '">' +
+           (isStart ? '<span class="start-flag">START HERE</span>' : '') +
+           '<div class="p-name">' + esc(p.name) + '</div>' +
+           '<div class="p-stmt">' + esc(p.statement) + '</div></div>';
+  }).join('');
+  $('result3').innerHTML =
+    '<div class="pillars">' + grid + '</div>' +
+    '<div class="p3-meta"><strong>Angle:</strong> ' + esc(out.angle) +
+    '<br><strong>Tone:</strong> ' + esc(out.tone) + '</div>';
+}
+
+/* ===================== PHASE 4 ===================== */
+function p4Gate() {
+  const ok = $('p4-profession').value.trim() &&
+             $('p4-anchor').value.trim() &&
+             document.querySelector('input[name="p4-schedule"]:checked');
+  $('run4').disabled = !ok;
+}
+['p4-profession', 'p4-anchor'].forEach((id) => $(id).addEventListener('input', p4Gate));
+document.querySelectorAll('input[name="p4-schedule"]').forEach((r) => r.addEventListener('change', p4Gate));
+
+$('run4').addEventListener('click', async () => {
+  clearError(4);
+  const inputs = {
+    phase2_output: state.outputs[2],
+    phase3_output: state.outputs[3],
+    profession: $('p4-profession').value.trim(),
+    schedule_context: document.querySelector('input[name="p4-schedule"]:checked').value,
+    anchor_activity: $('p4-anchor').value.trim()
+  };
+  setLoading($('run4'), true, 'Installing the reflex…');
+  try {
+    const data = await callPhase(4, inputs);
+    completePhase(4, data, renderPhase4);
+  } catch (e) {
+    showError(4, e.message);
+  } finally {
+    setLoading($('run4'), false);
+    p4Gate();
+  }
+});
+
+function renderPhase4(out) {
+  const sprint = Array.isArray(out.action_sprint) ? out.action_sprint : [];
+  const rows = sprint.map((s) =>
+    '<div class="sprint-row">' +
+    '<div class="min-chip">Min ' + esc(s.minutes) + '</div>' +
+    '<div class="sprint-instr">' + esc(s.instruction) +
+    '<span class="frame">' + esc(s.fill_in_frame) + '</span></div></div>'
+  ).join('');
+  $('result4').innerHTML =
+    '<div class="reflex-title">' + esc(out.reflex_title) + '</div>' +
+    '<div class="anchor-callout"><span class="a-lbl">Anchor point</span>' + esc(out.anchor_point) + '</div>' +
+    '<div class="sprint">' + rows + '</div>' +
+    '<div class="asset-line"><strong>Asset</strong>' + esc(out.asset) + '</div>' +
+    '<div class="payoff">' + esc(out.authority_payoff) + '</div>';
+}
+
+/* ---- redo wiring ---- */
+$('redo2').addEventListener('click', () => redoPhase(2));
+$('redo3').addEventListener('click', () => redoPhase(3));
+$('redo4').addEventListener('click', () => redoPhase(4));
+
+updateProgress();
+</script>
+</body>
+</html>
